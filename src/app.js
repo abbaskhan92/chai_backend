@@ -13,4 +13,15 @@ app.use(express.urlencoded({extended:true, limit:"16kb"}))
 app.use(express.static("public"))
 app.use(cookieParser())
 
+
+//Route import
+import userRouter from "./routes/user.routes.js";
+
+
+//routes declearation
+//app.use("/user", userRouter) but standerd practice is below
+app.use("/api/v1/users", userRouter)
+
+//http://localhost:3000/api/v1/users/register
+
 export {app}
