@@ -4,13 +4,13 @@ import {User} from "../models/user.model.js";
 import {uploadOnCloudinary} from "../utils/cloudinary.js";
 import {ApiResponse} from "../utils/ApiResponse.js";
 
-const generateAccessAndRefereshTokens = async (userId) => {
+const generateAccessAndRefreshTokens = async (userId) => {
     try {
         const user = await User.findById(userId);
         const refreshToken = user.generateRefreshToken();
         const accessToken = user.generateAccessToken();
         user.refreshToken = refreshToken;
-        await refreshToken.save({validateBeforeSave : false});
+        await user.save({validateBeforeSave : false});
 
         return {accessToken, refreshToken}
 
@@ -107,7 +107,7 @@ const registerUser = asyncHandler(async (req, res) => {
 //     */
     const {username, email, password} = req.body
 
-   if(! email || !username){
+   if(! (email || username)){
     throw new ApiError(400, "username or email is required")
    }
    const user = await User.findOne(
@@ -124,7 +124,7 @@ const registerUser = asyncHandler(async (req, res) => {
         throw new ApiError(401, "Invalid User Credentials")
     }
 
-    const {accessToken, refreshToken} = await generateAccessAndRefereshTokens(user._id);
+    const {accessToken, refreshToken} = await generateAccessAndRefreshTokens(user._id);
 
     const loggedInUser = await User.findById(user._id).select("-password -refreshToken");
 
