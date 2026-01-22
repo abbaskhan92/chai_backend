@@ -154,8 +154,8 @@ const logoutUser = asyncHandler(async(req, res)=>{
     User.findByIdAndUpdate(
         req.user._id,
         {
-            $set: {
-                refreshToken: undefined
+            $unset: {
+                refreshToken: 1 //this remove the field from the document
             }
         },
         {
@@ -315,7 +315,7 @@ const updateUserCoverImage = asyncHandler(async(req, res)=>{
 
 const getUserChannelProfile = asyncHandler(async(req, res)=>{
     const {username} = req.params
-    if(username?.trim()){
+    if(!username?.trim()){
         throw new ApiError(400, "username is missing")
     }
     const channel = await User.aggregate([
@@ -337,7 +337,7 @@ const getUserChannelProfile = asyncHandler(async(req, res)=>{
                 from: "subscriptions",
                 localField: "_id",
                 foreignField: "subscriber",
-                as: "subscribeTo"
+                as: "subscribedTo"
             }
         },
         {
@@ -372,7 +372,7 @@ const getUserChannelProfile = asyncHandler(async(req, res)=>{
     ])
 
     if(!channel?.length){
-        throw new ApiError(400, "Channel does not exist")
+        throw new ApiError(404, "Channel does not exist")
     }
     return res
     .status(200)
